@@ -1,61 +1,221 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Online Markdown Editor & Live Preview</title>
-    <meta name="description" content="Write Markdown and see live HTML preview instantly. Free online markdown editor with real-time rendering.">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}
-        body{background:#0f1026;color:#fff;line-height:1.6}
-        header{padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center}
-        header h1{font-size:18px;font-weight:600;letter-spacing:.4px}
-        header p{font-size:13px;opacity:.6;margin-top:4px}
-        main{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.08);height:calc(100vh - 78px)}
-        .panel{background:#0f1026;display:flex;flex-direction:column}
-        .panel-header{padding:10px 16px;font-size:12px;text-transform:uppercase;letter-spacing:4px;opacity:.5;border-bottom:1px solid rgba(255,255,255,.08)}
-        textarea{flex:1;background:transparent;border:none;color:#fff;padding:20px;font-size:15px;line-height:1.9;resize:none;outline:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-        #preview{flex:1;overflow:auto;padding:30px 40px}
-        #preview h1,#preview h2,#preview h3{margin:24px 0 12px}
-        #preview p{margin:12px 0;opacity:.9}
-        #preview pre{background:rgba(255,255,255,.05);padding:16px;border-radius:10px;overflow:auto;margin:16px 0}
-        #preview code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
-        #preview ul,#preview ol{padding-left:26px;margin:14px 0}
-        #preview a{color:#7aa2f7;text-decoration:none}
-        #preview blockquote{border-left:2px solid rgba(122,162,247,.8);padding-left:18px;opacity:.8;margin:18px 0}
-        footer{position:fixed;bottom:8px;width:100%;text-align:center;font-size:11px;opacity:.4}
-        @media(max-width:1080px){main{grid-template-columns:1fr;grid-auto-rows:1fr}}
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Markdown Editor — Private, Offline Live Preview</title>
+<meta name="description" content="Write Markdown and preview a safe rendered subset locally. No account or upload.">
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101426;color:#eef2ff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh}
+header{padding:1rem 1.4rem;border-bottom:1px solid #30364d}
+header h1{margin:0;font-size:1.15rem}
+header p{margin:.35rem 0 0;color:#abb5d0;font-size:.9rem}
+main{display:grid;grid-template-columns:1fr 1fr;min-height:78vh}
+section{min-width:0;padding:1rem;border-right:1px solid #30364d}
+h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:#aab5d2}
+textarea{width:100%;height:66vh;resize:vertical;background:#171d32;color:#f5f7ff;
+border:1px solid #3c4663;border-radius:8px;padding:1rem;font:15px/1.6 ui-monospace,monospace}
+#preview{min-height:66vh;background:#171d32;border:1px solid #3c4663;border-radius:8px;padding:1rem;overflow-wrap:anywhere}
+#preview pre{overflow:auto;padding:.8rem;background:#0c1020;border-radius:6px}
+#preview code{font-family:ui-monospace,monospace}
+#preview blockquote{border-left:3px solid #8296ff;padding-left:1rem;color:#c6cee4}
+a{color:#9cb1ff}
+button{margin-top:.6rem;padding:.55rem .8rem;border:1px solid #58668c;border-radius:6px;background:#202a46;color:#fff;cursor:pointer}
+.note{color:#aab5d2;font-size:.8rem;line-height:1.5}
+footer{text-align:center;padding:1rem;color:#9aa5c1;font-size:.8rem}
+@media(max-width:800px){main{grid-template-columns:1fr}section{border-right:0;border-bottom:1px solid #30364d}
+textarea,#preview{height:42vh;min-height:42vh}}
+</style>
 </head>
 <body>
-    <header>
-        <h1>Free Online Markdown Editor & Live Preview</h1>
-        <p>Write Markdown. See rendered HTML in real-time.</p>
-    </header>
-    <main>
-        <div class="panel">
-            <div class="panel-header">Markdown</div>
-            <textarea id="markdown" spellcheck="false" placeholder="# Write your markdown here..."># Markdown Editor
+<header>
+  <h1>Free Markdown Editor</h1>
+  <p>Local preview of a safe Markdown subset. Nothing is uploaded.</p>
+</header>
+<main>
+  <section>
+    <h2>Markdown</h2>
+    <textarea id="source" spellcheck="false" aria-label="Markdown source"># Markdown Editor
 
-Type on the left, preview on the right.
+Write Markdown on the left and preview it on the right.
 
-- Fast
-- Clean
-- Free online</textarea>
-        </div>
-        <div class="panel">
-            <div class="panel-header">Live Preview</div>
-            <div id="preview"></div>
-        </div>
-    </main>
-    <footer>Free Online Markdown Editor • GitHub Pages Ready</footer>
-    <script>
-        const md=document.getElementById('markdown');
-        const prev=document.getElementById('preview');
-        function render(){prev.innerHTML=marked.parse(md.value||'');}
-        md.addEventListener('input',render);
-        render();
-    </script>
+- Headings
+- Lists
+- **Bold** and *italic*
+- `Inline code`
+- [Safe links](https://example.com)
+
+Raw HTML is displayed as text, never executed.</textarea>
+    <button id="download" type="button">Download Markdown</button>
+  </section>
+  <section>
+    <h2>Safe preview</h2>
+    <div id="preview" aria-live="polite"></div>
+    <p class="note">This editor renders a limited Markdown subset. Raw HTML is escaped;
+      links are restricted to HTTP, HTTPS and mailto.</p>
+  </section>
+</main>
+<footer>Static tool · no account · no analytics · no network dependency</footer>
+<script>
+"use strict";
+
+const source = document.getElementById("source");
+const preview = document.getElementById("preview");
+
+function appendInline(parent, text) {
+  const pattern = /(`([^`]+)`|\*\*([^*]+)\*\*|\*([^*]+)\*|\[([^\]]+)\]\(([^)\s]+)\))/g;
+  let position = 0;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    parent.appendChild(document.createTextNode(text.slice(position, match.index)));
+
+    if (match[2] !== undefined) {
+      const code = document.createElement("code");
+      code.textContent = match[2];
+      parent.appendChild(code);
+    } else if (match[3] !== undefined) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[3];
+      parent.appendChild(strong);
+    } else if (match[4] !== undefined) {
+      const em = document.createElement("em");
+      em.textContent = match[4];
+      parent.appendChild(em);
+    } else if (match[5] !== undefined) {
+      let safeUrl = null;
+      try {
+        const parsed = new URL(match[6]);
+        if (["http:", "https:", "mailto:"].includes(parsed.protocol)) {
+          safeUrl = parsed.href;
+        }
+      } catch (_) {}
+
+      if (safeUrl) {
+        const link = document.createElement("a");
+        link.textContent = match[5];
+        link.href = safeUrl;
+        link.rel = "noopener noreferrer";
+        link.target = "_blank";
+        parent.appendChild(link);
+      } else {
+        parent.appendChild(document.createTextNode(match[0]));
+      }
+    }
+
+    position = pattern.lastIndex;
+  }
+
+  parent.appendChild(document.createTextNode(text.slice(position)));
+}
+
+function render() {
+  preview.replaceChildren();
+  const lines = source.value.replace(/\r\n?/g, "\n").split("\n");
+  let i = 0;
+  let paragraph = [];
+
+  function flushParagraph() {
+    if (!paragraph.length) return;
+    const node = document.createElement("p");
+    appendInline(node, paragraph.join(" "));
+    preview.appendChild(node);
+    paragraph = [];
+  }
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    if (/^\s*```/.test(line)) {
+      flushParagraph();
+      i++;
+      const codeLines = [];
+      while (i < lines.length && !/^\s*```/.test(lines[i])) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length) i++;
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = codeLines.join("\n");
+      pre.appendChild(code);
+      preview.appendChild(pre);
+      continue;
+    }
+
+    if (!line.trim()) {
+      flushParagraph();
+      i++;
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      const node = document.createElement("h" + heading[1].length);
+      appendInline(node, heading[2]);
+      preview.appendChild(node);
+      i++;
+      continue;
+    }
+
+    if (/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(line)) {
+      flushParagraph();
+      preview.appendChild(document.createElement("hr"));
+      i++;
+      continue;
+    }
+
+    if (/^\s*>\s?/.test(line)) {
+      flushParagraph();
+      const node = document.createElement("blockquote");
+      appendInline(node, line.replace(/^\s*>\s?/, ""));
+      preview.appendChild(node);
+      i++;
+      continue;
+    }
+
+    const unordered = line.match(/^\s*[-*+]\s+(.+)$/);
+    const ordered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (unordered || ordered) {
+      flushParagraph();
+      const list = document.createElement(unordered ? "ul" : "ol");
+      while (i < lines.length) {
+        const item = lines[i].match(
+          unordered ? /^\s*[-*+]\s+(.+)$/ : /^\s*\d+[.)]\s+(.+)$/
+        );
+        if (!item) break;
+        const li = document.createElement("li");
+        appendInline(li, item[1]);
+        list.appendChild(li);
+        i++;
+      }
+      preview.appendChild(list);
+      continue;
+    }
+
+    // Les balises HTML brutes passent dans un nœud texte, pas dans le DOM.
+    paragraph.push(line);
+    i++;
+  }
+
+  flushParagraph();
+}
+
+source.addEventListener("input", render);
+document.getElementById("download").addEventListener("click", () => {
+  const blob = new Blob([source.value], {type: "text/markdown;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "document.md";
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+render();
+</script>
 </body>
 </html>
